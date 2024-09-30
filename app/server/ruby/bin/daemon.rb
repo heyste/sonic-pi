@@ -1280,14 +1280,24 @@ module SonicPi
           Thread.new do
             Kernel.sleep 5
             if Util.pipewire?
+              port_name = 'playback'
               port_type = if Util.os == :raspberry
                             'hdmi'
                           else
                             'alsa_output'
                           end
+
+              if ENV['XRDP_SESSION']
+                Util.log "Using Sonic Pi remotely! routing audio to xrdp-sink..."
+                port_type = 'xrdp-sink'
+                port_name = 'send'
+              end
+              Util.log "port_type: #{port_type}"
+              Util.log "port_name: #{port_name}"
+
               inputs = `pw-link -iI`.lines
-              left_id = inputs.grep(/#{port_type}.*playback_FL$/).first.to_i
-              right_id = inputs.grep(/#{port_type}.*playback_FR$/).first.to_i
+              left_id = inputs.grep(/#{port_type}.*#{port_name}_FL$/).first.to_i
+              right_id = inputs.grep(/#{port_type}.*#{port_name}_FR$/).first.to_i
 
               outputs = `pw-link -oI`.lines
               sco1 = outputs.grep(/SuperCollider:out_1$/).first.to_i
