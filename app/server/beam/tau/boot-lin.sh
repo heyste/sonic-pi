@@ -15,6 +15,9 @@ then
   # export MIX_ENV=dev
   # mix tau.release
 
+  # When using sonic pi via a rdp connection disable midi support for now
+  [ -z "$XRDP_SESSION" ] || export TAU_MIDI_ENABLED=false
+
   export MIX_ENV=prod
   _build/prod/rel/tau/bin/tau start > $TAU_BOOT_LOG_PATH 2>&1
 elif [ "$TAU_ENV" = "dev" ]
